@@ -22,7 +22,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -31,7 +31,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: streatcodes/audio_test:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
 # name: Fly Deploy
 # on:
