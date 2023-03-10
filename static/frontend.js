@@ -27,7 +27,7 @@ async function getMedia(ws) {
 }
 
 async function connect() {
-    const ws = new WebSocket(`ws://127.0.0.1:8080/`);
+    const ws = new WebSocket(`wss://${window.location.host}/`);
 
     const audioElement = document.createElement("audio");
     const mediaSource = new MediaSource();
