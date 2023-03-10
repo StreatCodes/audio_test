@@ -1,7 +1,7 @@
 import http from 'node:http';
 import path from 'node:path';
 import fs from 'node:fs/promises'
-import crypto from 'node:crypto';
+import { WebSocketServer } from 'ws';
 
 
 function mimeType(fileName) {
@@ -75,58 +75,31 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(405);
 });
 
-function websocketHandshake(socket, secHeader) {
-  //Modern browsers require the sec-websocket-key header
-  if (!secHeader) {
-    socket.end("HTTP/1.1 400 Bad Request");
-    return;
-  }
-
-  //Hash websocket security key
-  const keySuffix = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-  const sha1 = crypto.createHash("sha1");
-  sha1.update(secHeader + keySuffix, "ascii");
-  const key = sha1.digest("base64");
-
-  socket.write('HTTP/1.1 101 Switching Protocols\r\n' +
-    'Upgrade: websocket\r\n' +
-    'Connection: Upgrade\r\n' +
-    'sec-websocket-accept: ' + key + '\r\n' +
-    '\r\n');
-}
 
 let socketCount = 0;
 const sockets = new Map();
+const wss = new WebSocketServer({ server });
 
-server.on('upgrade', (req, socket, head) => {
+wss.on('connection', function connection(ws) {
   const socketId = socketCount;
-  sockets.set(socketId, socket);
+  sockets.set(socketId, ws);
   socketCount += 1;
 
-  //Send all data to other sockets
-  socket.on('data', data => {
-    sockets.forEach((s, id) => {
+  ws.on('error', console.error);
+
+  ws.on('message', (data) => {
+    sockets.forEach((ws, id) => {
       if (id !== socketId) {
         console.log(`Sending ${data.length} bytes: ${socketId} -> ${id}`)
-        if (data.length < 50) console.log(data.toString())
-        s.write(data);
+        ws.send(data, { binary: true });
       }
     })
   });
 
-  socket.on('end', () => {
-    console.log(`Socket ended: ${socketId}`)
+  ws.on('close', () => {
+    console.log(`Socket closed: ${socketId}`)
     sockets.delete(socketId);
-  });
-
-  socket.on('error', (err) => {
-    console.log(`Socket error: ${socketId}`)
-    console.log(err)
   })
-
-  const secHeader = req.headers["sec-websocket-key"];
-  websocketHandshake(socket, secHeader);
-  console.log(`New socket: ${socketId}`)
 });
 
 server.on('listening', () => {

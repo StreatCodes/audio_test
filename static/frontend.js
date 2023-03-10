@@ -14,20 +14,25 @@ async function getMedia(ws) {
         })
 
         mediaRecorder.addEventListener('dataavailable', async (ev) => {
-            if (ev.data.size > 0) {
+            if (ev.data.size > 0 && ws.readyState === ws.OPEN) {
                 const chunk = ev.data;
                 ws.send(chunk)
             }
         })
 
         mediaRecorder.start(20);
+        ws.addEventListener('close', (ev) => {
+            console.log('Stopping media recorder');
+            mediaRecorder.stop();
+        });
     } catch (err) {
         console.error('failed to get microphone:', err);
     }
 }
 
 async function connect() {
-    const ws = new WebSocket(`wss://${window.location.host}/`);
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${wsProtocol}://${window.location.host}/`);
 
     const audioElement = document.createElement("audio");
     const mediaSource = new MediaSource();
