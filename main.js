@@ -84,13 +84,13 @@ wss.on('connection', function connection(ws) {
   const socketId = socketCount;
   sockets.set(socketId, ws);
   socketCount += 1;
+  console.log(`New websocket connection: ${socketId}`)
 
   ws.on('error', console.error);
 
   ws.on('message', (data) => {
     sockets.forEach((ws, id) => {
       if (id !== socketId) {
-        console.log(`Sending ${data.length} bytes: ${socketId} -> ${id}`)
         ws.send(data, { binary: true });
       }
     })
