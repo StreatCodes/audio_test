@@ -32,7 +32,7 @@ async function getMedia(ws) {
 
 async function connect() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${wsProtocol}://${window.location.host}/`);
+    const ws = new WebSocket(`${wsProtocol}://${window.location.host}/ws`);
 
     const audioElement = document.createElement("audio");
     const mediaSource = new MediaSource();
