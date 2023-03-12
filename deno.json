@@ -1,0 +1,19 @@
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-net --allow-read server/main.ts",
+    "prod": "deno run --allow-net --allow-read server/main.ts",
+    "build-frontend": "deno run --allow-read --allow-env --allow-net --allow-write --allow-run build.ts"
+  },
+  "compilerOptions": {
+    "lib": [
+      "dom", "deno.ns", "esnext"
+    ]
+  },
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0/client",
+    "oak": "https://deno.land/x/oak@v12.1.0/mod.ts",
+    "esbuild": "https://deno.land/x/esbuild@v0.15.2/mod.js",
+    "esbuild-deno-loader": "https://deno.land/x/esbuild_deno_loader@0.6.0/mod.ts"
+  }
+}

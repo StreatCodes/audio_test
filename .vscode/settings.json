@@ -1,6 +1,3 @@
 {
-    "deno.enable": true,
-    "deno.enablePaths": [
-        "./server"
-    ]
+    "deno.enable": true
 }
